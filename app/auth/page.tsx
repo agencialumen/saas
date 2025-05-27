@@ -1,19 +1,14 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { buttonVariants } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Loader2 } from "lucide-react"
-import Link from "next/link"
-import { Icons } from "@/components/icons"
-import { useToast } from "@/components/ui/use-toast"
+import { Loader2, Eye, EyeOff, Lock, Mail, Shield } from "lucide-react"
 import { supabase } from "@/lib/supabase-client"
 
 type FormData = {
@@ -31,12 +26,12 @@ const AuthenticationPage = () => {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<"login" | "register">("login")
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [showPassword, setShowPassword] = useState<boolean>(false)
   const [formData, setFormData] = useState<FormData>({
     email: "",
     password: "",
   })
   const [errors, setErrors] = useState<Errors>({})
-  const { toast } = useToast()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -48,18 +43,18 @@ const AuthenticationPage = () => {
     const newErrors: Errors = {}
 
     if (!formData.email) {
-      newErrors.email = "Email is required"
+      newErrors.email = "Email é obrigatório"
       isValid = false
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Email is invalid"
+      newErrors.email = "Email inválido"
       isValid = false
     }
 
     if (!formData.password) {
-      newErrors.password = "Password is required"
+      newErrors.password = "Senha é obrigatória"
       isValid = false
     } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters"
+      newErrors.password = "Senha deve ter pelo menos 6 caracteres"
       isValid = false
     }
 
@@ -76,7 +71,6 @@ const AuthenticationPage = () => {
 
     try {
       if (activeTab === "login") {
-        // Login com Supabase
         const { data, error } = await supabase.auth.signInWithPassword({
           email: formData.email,
           password: formData.password,
@@ -87,11 +81,9 @@ const AuthenticationPage = () => {
           setErrors({ general: error.message })
         } else {
           console.log("Login bem-sucedido:", data)
-          // Redirecionar para o dashboard após login bem-sucedido
           router.push("/dashboard")
         }
       } else {
-        // Cadastro com Supabase
         const { data, error } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
@@ -102,7 +94,6 @@ const AuthenticationPage = () => {
           setErrors({ general: error.message })
         } else {
           console.log("Cadastro bem-sucedido:", data)
-          // Aqui você pode mostrar uma mensagem de confirmação de email
         }
       }
     } catch (error) {
@@ -114,130 +105,223 @@ const AuthenticationPage = () => {
   }
 
   return (
-    <div className="container relative hidden h-[800px] flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
-      <div className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex">
-        <div className="absolute inset-0 bg-zinc-900/80" />
-        <div className="relative z-20 flex items-center text-lg font-medium">
-          <Icons.logo className="mr-2 h-6 w-6" />
-          Acme Corp
-        </div>
-        <div className="relative z-20 mt-auto">
-          <blockquote className="space-y-2">
-            <p className="text-lg">
-              &ldquo;This library has saved me countless hours of work and helped me deliver stunning designs to my
-              clients faster than ever before.&rdquo;
-            </p>
-            <footer className="text-sm">Sofia Davis · Designer</footer>
-          </blockquote>
-        </div>
+    <div className="min-h-screen bg-black relative overflow-hidden">
+      {/* Background Overlay Effects */}
+      <div className="absolute inset-0">
+        {/* Red gradient overlays */}
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-red-900/20 via-transparent to-red-800/10" />
+        <div className="absolute top-1/4 right-0 w-96 h-96 bg-red-600/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 left-0 w-80 h-80 bg-red-500/8 rounded-full blur-2xl" />
+
+        {/* Subtle grid pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]" />
       </div>
-      <div className="lg:p-8">
-        <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-          <div className="flex flex-col space-y-2 text-center">
-            <h1 className="text-2xl font-semibold">{activeTab === "login" ? "Login" : "Create an account"}</h1>
-            <p className="text-sm text-muted-foreground">
+
+      {/* Main Container */}
+      <div className="relative z-10 min-h-screen flex flex-col justify-center px-4 py-8">
+        <div className="w-full max-w-sm mx-auto">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-8"
+          >
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-red-600/20 border border-red-600/30 rounded-xl mb-6">
+              <Shield className="w-6 h-6 text-red-400" />
+            </div>
+
+            <h1 className="text-2xl font-bold text-white mb-2">
+              {activeTab === "login" ? "Acesso Privado" : "Área Exclusiva"}
+            </h1>
+
+            <p className="text-gray-400 text-sm leading-relaxed">
               {activeTab === "login"
-                ? "Enter your email and password to login"
-                : "Enter your email and password to create an account"}
+                ? "Entre na sua conta e acesse conteúdos exclusivos criados especialmente para você"
+                : "Crie sua conta e tenha acesso ilimitado ao conteúdo mais íntimo e personalizado"}
             </p>
-          </div>
-          <div className="grid gap-6">
-            <form onSubmit={handleSubmit}>
-              <div className="grid gap-2">
-                <div className="grid gap-1">
-                  <Label htmlFor="email">Email</Label>
+          </motion.div>
+
+          {/* Auth Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="bg-gray-900/50 backdrop-blur-sm border border-gray-800/50 rounded-2xl p-6 shadow-2xl"
+          >
+            {/* Tab Switcher */}
+            <div className="flex bg-gray-800/50 rounded-xl p-1 mb-6">
+              <button
+                onClick={() => setActiveTab("login")}
+                className={cn(
+                  "flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-300",
+                  activeTab === "login"
+                    ? "bg-red-600 text-white shadow-lg shadow-red-600/25"
+                    : "text-gray-400 hover:text-white",
+                )}
+              >
+                Entrar
+              </button>
+              <button
+                onClick={() => setActiveTab("register")}
+                className={cn(
+                  "flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-300",
+                  activeTab === "register"
+                    ? "bg-red-600 text-white shadow-lg shadow-red-600/25"
+                    : "text-gray-400 hover:text-white",
+                )}
+              >
+                Cadastrar
+              </button>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Email Field */}
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-gray-300 text-sm font-medium">
+                  Email
+                </Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
                   <Input
                     id="email"
                     name="email"
-                    placeholder="name@example.com"
                     type="email"
-                    autoCapitalize="none"
-                    autoComplete="email"
+                    placeholder="seu@email.com"
                     value={formData.email}
                     onChange={handleChange}
                     disabled={isLoading}
+                    className="pl-10 bg-gray-800/50 border-gray-700/50 text-white placeholder:text-gray-500 focus:border-red-500/50 focus:ring-red-500/20 h-12 rounded-xl"
                   />
-                  {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
                 </div>
+                <AnimatePresence>
+                  {errors.email && (
+                    <motion.p
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="text-red-400 text-xs"
+                    >
+                      {errors.email}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
               </div>
-              <div className="grid gap-2">
-                <div className="grid gap-1">
-                  <Label htmlFor="password">Password</Label>
+
+              {/* Password Field */}
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-gray-300 text-sm font-medium">
+                  Senha
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
                   <Input
                     id="password"
                     name="password"
-                    placeholder="Password"
-                    type="password"
-                    autoCapitalize="none"
-                    autoComplete="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
                     value={formData.password}
                     onChange={handleChange}
                     disabled={isLoading}
+                    className="pl-10 pr-10 bg-gray-800/50 border-gray-700/50 text-white placeholder:text-gray-500 focus:border-red-500/50 focus:ring-red-500/20 h-12 rounded-xl"
                   />
-                  {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
                 </div>
+                <AnimatePresence>
+                  {errors.password && (
+                    <motion.p
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="text-red-400 text-xs"
+                    >
+                      {errors.password}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
               </div>
+
               {/* Error Display */}
-              {errors.general && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg"
-                >
-                  <p className="text-red-400 text-sm text-center">{errors.general}</p>
-                </motion.div>
-              )}
-              <button className={cn(buttonVariants(), "w-full")} disabled={isLoading}>
+              <AnimatePresence>
+                {errors.general && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="p-3 bg-red-900/20 border border-red-800/30 rounded-xl"
+                  >
+                    <p className="text-red-300 text-sm text-center">{errors.general}</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-red-600 hover:bg-red-700 text-white font-medium h-12 rounded-xl shadow-lg shadow-red-600/25 hover:shadow-red-600/40 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Please wait...
+                    Processando...
                   </>
                 ) : activeTab === "login" ? (
-                  "Login"
+                  "Acessar Conteúdo"
                 ) : (
-                  "Create account"
+                  "Criar Acesso VIP"
                 )}
-              </button>
+              </Button>
             </form>
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <Separator className="w-full" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-              </div>
+
+            {/* Footer */}
+            <div className="mt-6 text-center">
+              <p className="text-gray-500 text-sm">
+                {activeTab === "login" ? (
+                  <>
+                    Ainda não tem acesso?{" "}
+                    <button
+                      onClick={() => setActiveTab("register")}
+                      className="text-red-400 hover:text-red-300 font-medium transition-colors"
+                    >
+                      Cadastre-se agora
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    Já tem uma conta?{" "}
+                    <button
+                      onClick={() => setActiveTab("login")}
+                      className="text-red-400 hover:text-red-300 font-medium transition-colors"
+                    >
+                      Fazer login
+                    </button>
+                  </>
+                )}
+              </p>
             </div>
-            <button type="button" className={cn(buttonVariants({ variant: "outline" }), "w-full")}>
-              <Icons.gitHub className="mr-2 h-4 w-4" />
-              Github
-            </button>
-          </div>
-          <div className="text-center text-sm text-muted-foreground">
-            {activeTab === "login" ? (
-              <>
-                Don&apos;t have an account?{" "}
-                <Link
-                  href="#"
-                  className="underline underline-offset-4 hover:text-primary"
-                  onClick={() => setActiveTab("register")}
-                >
-                  Sign up
-                </Link>
-              </>
-            ) : (
-              <>
-                Already have an account?{" "}
-                <Link
-                  href="#"
-                  className="underline underline-offset-4 hover:text-primary"
-                  onClick={() => setActiveTab("login")}
-                >
-                  Log in
-                </Link>
-              </>
-            )}
-          </div>
+          </motion.div>
+
+          {/* Bottom Notice */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="mt-6 text-center"
+          >
+            <p className="text-gray-600 text-xs leading-relaxed">
+              🔒 Conteúdo exclusivo para maiores de 18 anos
+              <br />
+              Seus dados estão protegidos e criptografados
+            </p>
+          </motion.div>
         </div>
       </div>
     </div>
