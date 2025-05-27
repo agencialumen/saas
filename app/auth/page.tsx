@@ -210,7 +210,7 @@ const AuthenticationPage = () => {
                     transition={{ delay: 0.3 }}
                     className="text-white text-lg font-medium mb-2"
                   >
-                    {successMessage.type === "signup" ? "Perfeito!" : "Oi, gostosa! 😈"}
+                    {successMessage.type === "signup" ? "Perfeito!" : "Oi, gostoso! 😈"}
                   </motion.p>
 
                   <motion.p
