@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Loader2, Eye, EyeOff, Lock, Mail, Shield } from "lucide-react"
+import { Loader2, Eye, EyeOff, Lock, Mail, Shield, CheckCircle, Heart } from "lucide-react"
 import { supabase } from "@/lib/supabase-client"
 
 type FormData = {
@@ -22,11 +22,17 @@ type Errors = {
   general?: string
 }
 
+type SuccessMessage = {
+  type: "signup" | "login"
+  message: string
+}
+
 const AuthenticationPage = () => {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<"login" | "register">("login")
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [showPassword, setShowPassword] = useState<boolean>(false)
+  const [successMessage, setSuccessMessage] = useState<SuccessMessage | null>(null)
   const [formData, setFormData] = useState<FormData>({
     email: "",
     password: "",
@@ -62,12 +68,36 @@ const AuthenticationPage = () => {
     return isValid
   }
 
+  const showSuccessAndRedirect = (type: "signup" | "login") => {
+    const messages = {
+      signup: "Conta criada com sucesso! 🔥 Agora faça login para acessar o conteúdo exclusivo",
+      login: "Bem-vinda de volta, safadinha! 😈 Preparando seu acesso...",
+    }
+
+    setSuccessMessage({ type, message: messages[type] })
+
+    if (type === "signup") {
+      // Para signup: mostrar mensagem por 3s e mudar para login
+      setTimeout(() => {
+        setSuccessMessage(null)
+        setActiveTab("login")
+        setFormData({ email: formData.email, password: "" }) // Manter email, limpar senha
+      }, 3000)
+    } else {
+      // Para login: mostrar mensagem por 2s e redirecionar
+      setTimeout(() => {
+        router.push("/dashboard")
+      }, 2000)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!validateForm()) return
 
     setIsLoading(true)
+    setErrors({})
 
     try {
       if (activeTab === "login") {
@@ -78,10 +108,10 @@ const AuthenticationPage = () => {
 
         if (error) {
           console.error("Erro no login:", error)
-          setErrors({ general: error.message })
+          setErrors({ general: "Email ou senha incorretos. Tente novamente!" })
         } else {
           console.log("Login bem-sucedido:", data)
-          router.push("/dashboard")
+          showSuccessAndRedirect("login")
         }
       } else {
         const { data, error } = await supabase.auth.signUp({
@@ -94,13 +124,22 @@ const AuthenticationPage = () => {
           setErrors({ general: error.message })
         } else {
           console.log("Cadastro bem-sucedido:", data)
+          showSuccessAndRedirect("signup")
         }
       }
     } catch (error) {
       console.error("Erro inesperado:", error)
-      setErrors({ general: "Ocorreu um erro inesperado. Tente novamente." })
+      setErrors({ general: "Ops! Algo deu errado. Tente novamente em alguns segundos." })
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleTabChange = (tab: "login" | "register") => {
+    if (!isLoading && !successMessage) {
+      setActiveTab(tab)
+      setErrors({})
+      setFormData({ email: "", password: "" })
     }
   }
 
@@ -142,6 +181,66 @@ const AuthenticationPage = () => {
             </p>
           </motion.div>
 
+          {/* Success Message Overlay */}
+          <AnimatePresence>
+            {successMessage && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: -20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: -20 }}
+                className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+              >
+                <div className="bg-gray-900 border border-red-600/30 rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                    className="inline-flex items-center justify-center w-16 h-16 bg-red-600/20 rounded-full mb-4"
+                  >
+                    {successMessage.type === "signup" ? (
+                      <CheckCircle className="w-8 h-8 text-red-400" />
+                    ) : (
+                      <Heart className="w-8 h-8 text-red-400" />
+                    )}
+                  </motion.div>
+
+                  <motion.p
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-white text-lg font-medium mb-2"
+                  >
+                    {successMessage.type === "signup" ? "Perfeito!" : "Oi, gostosa! 😈"}
+                  </motion.p>
+
+                  <motion.p
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="text-gray-300 text-sm leading-relaxed"
+                  >
+                    {successMessage.message}
+                  </motion.p>
+
+                  {successMessage.type === "login" && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.5 }}
+                      className="mt-4"
+                    >
+                      <div className="flex items-center justify-center space-x-1">
+                        <div className="w-2 h-2 bg-red-500 rounded-full animate-bounce" />
+                        <div className="w-2 h-2 bg-red-500 rounded-full animate-bounce delay-100" />
+                        <div className="w-2 h-2 bg-red-500 rounded-full animate-bounce delay-200" />
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Auth Card */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -152,9 +251,10 @@ const AuthenticationPage = () => {
             {/* Tab Switcher */}
             <div className="flex bg-gray-800/50 rounded-xl p-1 mb-6">
               <button
-                onClick={() => setActiveTab("login")}
+                onClick={() => handleTabChange("login")}
+                disabled={isLoading || !!successMessage}
                 className={cn(
-                  "flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-300",
+                  "flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-300 disabled:opacity-50",
                   activeTab === "login"
                     ? "bg-red-600 text-white shadow-lg shadow-red-600/25"
                     : "text-gray-400 hover:text-white",
@@ -163,9 +263,10 @@ const AuthenticationPage = () => {
                 Entrar
               </button>
               <button
-                onClick={() => setActiveTab("register")}
+                onClick={() => handleTabChange("register")}
+                disabled={isLoading || !!successMessage}
                 className={cn(
-                  "flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-300",
+                  "flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-300 disabled:opacity-50",
                   activeTab === "register"
                     ? "bg-red-600 text-white shadow-lg shadow-red-600/25"
                     : "text-gray-400 hover:text-white",
@@ -191,8 +292,8 @@ const AuthenticationPage = () => {
                     placeholder="seu@email.com"
                     value={formData.email}
                     onChange={handleChange}
-                    disabled={isLoading}
-                    className="pl-10 bg-gray-800/50 border-gray-700/50 text-white placeholder:text-gray-500 focus:border-red-500/50 focus:ring-red-500/20 h-12 rounded-xl"
+                    disabled={isLoading || !!successMessage}
+                    className="pl-10 bg-gray-800/50 border-gray-700/50 text-white placeholder:text-gray-500 focus:border-red-500/50 focus:ring-red-500/20 h-12 rounded-xl disabled:opacity-50"
                   />
                 </div>
                 <AnimatePresence>
@@ -223,13 +324,14 @@ const AuthenticationPage = () => {
                     placeholder="••••••••"
                     value={formData.password}
                     onChange={handleChange}
-                    disabled={isLoading}
-                    className="pl-10 pr-10 bg-gray-800/50 border-gray-700/50 text-white placeholder:text-gray-500 focus:border-red-500/50 focus:ring-red-500/20 h-12 rounded-xl"
+                    disabled={isLoading || !!successMessage}
+                    className="pl-10 pr-10 bg-gray-800/50 border-gray-700/50 text-white placeholder:text-gray-500 focus:border-red-500/50 focus:ring-red-500/20 h-12 rounded-xl disabled:opacity-50"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+                    disabled={isLoading || !!successMessage}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors disabled:opacity-50"
                   >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
@@ -265,13 +367,13 @@ const AuthenticationPage = () => {
               {/* Submit Button */}
               <Button
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || !!successMessage}
                 className="w-full bg-red-600 hover:bg-red-700 text-white font-medium h-12 rounded-xl shadow-lg shadow-red-600/25 hover:shadow-red-600/40 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Processando...
+                    {activeTab === "login" ? "Entrando..." : "Criando conta..."}
                   </>
                 ) : activeTab === "login" ? (
                   "Acessar Conteúdo"
@@ -288,8 +390,9 @@ const AuthenticationPage = () => {
                   <>
                     Ainda não tem acesso?{" "}
                     <button
-                      onClick={() => setActiveTab("register")}
-                      className="text-red-400 hover:text-red-300 font-medium transition-colors"
+                      onClick={() => handleTabChange("register")}
+                      disabled={isLoading || !!successMessage}
+                      className="text-red-400 hover:text-red-300 font-medium transition-colors disabled:opacity-50"
                     >
                       Cadastre-se agora
                     </button>
@@ -298,8 +401,9 @@ const AuthenticationPage = () => {
                   <>
                     Já tem uma conta?{" "}
                     <button
-                      onClick={() => setActiveTab("login")}
-                      className="text-red-400 hover:text-red-300 font-medium transition-colors"
+                      onClick={() => handleTabChange("login")}
+                      disabled={isLoading || !!successMessage}
+                      className="text-red-400 hover:text-red-300 font-medium transition-colors disabled:opacity-50"
                     >
                       Fazer login
                     </button>
