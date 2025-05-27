@@ -4,8 +4,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import SubscriptionModal from "@/components/subscription-modal"
 import { motion } from "framer-motion"
+import { useRouter } from "next/navigation"
 
 // Configuração centralizada - fácil de editar
 const PROFILE_CONFIG = {
@@ -41,7 +41,7 @@ const PROFILE_CONFIG = {
 }
 
 export default function ProfileHeader() {
-  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
+  const router = useRouter()
   const [showFollowers, setShowFollowers] = useState(false)
   const { username, handle, bio, stats, images, verifiedFollowers } = PROFILE_CONFIG
 
@@ -99,10 +99,10 @@ export default function ProfileHeader() {
               {/* CTA Button - Prominent and Attention-Grabbing */}
               <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }} className="mb-6">
                 <Button
-                  onClick={() => setShowSubscriptionModal(true)}
+                  onClick={() => router.push("/auth")}
                   className="bg-gradient-to-r from-rose-500 to-red-500 hover:from-rose-600 hover:to-red-600 text-white font-bold py-3 px-6 rounded-lg text-base w-full md:w-auto transition-all duration-300 shadow-lg shadow-rose-500/20"
                 >
-                  ASSINAR PARA VER MAIS
+                  ENTRAR AGORA
                 </Button>
               </motion.div>
 
@@ -170,8 +170,6 @@ export default function ProfileHeader() {
 
         <div className="h-px w-full bg-zinc-800"></div>
       </div>
-
-      <SubscriptionModal open={showSubscriptionModal} onOpenChange={setShowSubscriptionModal} />
     </>
   )
 }
