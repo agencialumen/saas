@@ -13,7 +13,7 @@ const CONTENT_CONFIG = {
   photos: [
     {
       id: "photo1",
-      src: "/images/preview1.jpg",
+      src: "https://iili.io/3Z5kOGe.jpg",
       title: "Dia de praia com as amigas 🏖️",
       likes: "3.2K",
       comments: "128",
@@ -22,7 +22,7 @@ const CONTENT_CONFIG = {
     },
     {
       id: "photo2",
-      src: "/images/preview2.jpg",
+      src: "https://iili.io/3Z51VWl.md.jpg",
       title: "Noite especial 💋",
       likes: "5.7K",
       comments: "243",
@@ -31,7 +31,7 @@ const CONTENT_CONFIG = {
     },
     {
       id: "photo3",
-      src: "/images/preview3.jpg",
+      src: "https://iili.io/3ZLrwGf.jpg",
       title: "Ensaio exclusivo 📸",
       likes: "8.1K",
       comments: "312",
@@ -42,7 +42,7 @@ const CONTENT_CONFIG = {
   videos: [
     {
       id: "video1",
-      thumbnail: "/images/video-thumb1.jpg",
+      thumbnail: "https://iili.io/3ZRRKuI.md.jpg",
       title: "Banho quente 🚿",
       duration: "03:24",
       views: "12.3K",
@@ -51,7 +51,7 @@ const CONTENT_CONFIG = {
     },
     {
       id: "video2",
-      thumbnail: "/images/video-thumb2.jpg",
+      thumbnail: "https://iili.io/3Z5Gltf.jpg",
       title: "Provando lingerie nova 💕",
       duration: "05:12",
       views: "18.7K",
@@ -60,7 +60,7 @@ const CONTENT_CONFIG = {
     },
     {
       id: "video3",
-      thumbnail: "/images/video-thumb3.jpg",
+      thumbnail: "https://iili.io/3ZAm79I.md.jpg",
       title: "Dançando para você 💃",
       duration: "02:45",
       views: "9.5K",
@@ -117,7 +117,7 @@ export default function ProfileContent() {
               >
                 <div className="p-3 flex items-center gap-3">
                   <div className="relative h-10 w-10 rounded-full overflow-hidden">
-                    <Image src="/images/profile-avatar.jpg" alt="Profile" fill className="object-cover" />
+                    <Image src="https://iili.io/3ZiexRf.jpg" alt="Profile" fill className="object-cover" />
                   </div>
                   <div>
                     <p className="font-medium text-white">Isabelle Lua</p>
@@ -168,7 +168,7 @@ export default function ProfileContent() {
               >
                 <div className="p-3 flex items-center gap-3">
                   <div className="relative h-10 w-10 rounded-full overflow-hidden">
-                    <Image src="/images/profile-avatar.jpg" alt="Profile" fill className="object-cover" />
+                    <Image src="https://iili.io/3ZiexRf.jpg" alt="Profile" fill className="object-cover" />
                   </div>
                   <div>
                     <p className="font-medium text-white">Isabelle Lua</p>

@@ -18,8 +18,8 @@ const PROFILE_CONFIG = {
     likes: "68.2K",
   },
   images: {
-    avatar: "/images/profile-avatar.jpg",
-    cover: "/images/profile-cover.jpg",
+    avatar: "https://iili.io/3ZiexRf.md.jpg",
+    cover: "https://iili.io/3Z7Fp5u.md.jpg",
   },
   verifiedFollowers: [
     {
