@@ -81,7 +81,7 @@ const CHAT_CONFIG = {
       id: 11,
       type: "model-image",
       // Usando a imagem local como fallback e a URL externa como principal
-      image: "https://drive.google.com/file/d/1w0Oq8tKNhRlvzyTq-XDrdw5drPmU0yiF/view?usp=sharing",
+      image: "https://iili.io/FdO7pVt.jpg",
     },
     {
       id: 12,
